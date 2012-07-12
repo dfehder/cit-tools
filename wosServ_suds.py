@@ -265,6 +265,38 @@ def shortExtract(xml):
         return "error"
             
                 
+def artsDB(artlist, dbPath):
+    """
+    This function takes the return value of the shortExtract function
+    and puts it into the article_short table
+    """
+    #first check for the fact that it is a list
+    if type(artlist) is list:
+        pass
+    else:
+        return 0
+    
+    try:
+        conn = sqlite3.connect(dbPath)
+        c = conn.cursor()
+        sql_insert = 'insert into article_short (UT, AU, TI, PY, SO, DE) values (:UT, :AU, :TI, :PY, :SO, :DE)'
+
+        sql_check = 'SELECT * FROM article_short WHERE UT = :UT'
+
+        for elem in artlist:
+            c.execute(sql_check, elem)
+            allit = c.fetchall()
+            if len(allit) > 0:
+                pass
+            else:
+                c.execute(sql_insert, elem)
+                conn.commit()
+
+        return 1
+
+    except:
+        return 0
+        
 
 
 
