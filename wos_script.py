@@ -4,12 +4,12 @@ from BeautifulSoup import BeautifulStoneSoup
 #searcher = "AU = Murray F AND AD = MIT"
 #b = wosServ_suds.wos_search(searcher)
 
-url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
-a = wosServ_suds.wos_auth(url, 1)
+
+
 
 print a
 
-time.sleep(2)
+
 
 muid = '000084170700023'
 muid2 = '000084170700024'
@@ -31,8 +31,8 @@ print outcome
 
 
 #this tests out the search option
-se = "AU = Stern S* AND OG = MIT"
-c = wosServ_suds.wos_search(se, '2012-08-07', a)
-arts = wosServ_suds.shortExtract(c)
+se = "AU = Murray F* AND OG = MIT"
 
 
+
+aa, bb = wosServ_suds.searchIter(se, '2012-07-12')

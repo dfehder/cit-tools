@@ -306,6 +306,47 @@ def artsDB(artlist, dbPath):
         return 0
         
 
+def recCount(souper):
+    #takes an xml file parsed by soup and gets number of records
+    ret = 0
+    ee = souper.find('recordsfound')
+    ret = int(ee.contents[0])
+
+    return ret
+
+def queryID(souper):
+    #takes parsed xml and gives query id
+    ret = 0
+    ee = souper.find('queryid')
+    ret = int(ee.contents[0])
+
+    return ret
+    
+   
+
+def searchIter(search_text, endDate):
+    url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
+    a = wos_auth(url, 1)
+
+    time.sleep(2)
+
+    #now we will get the xml from the server
+    try:
+        c = wos_search(search_text, endDate, a)
+        
+        #now create the data for the insertion into db
+        soup = BeautifulStoneSoup(c)
+        arts = shortExtract(c)
+        uts = utExtract(c)
+        qid = queryID(soup)
+        recs = recCount(soup)
+        
+    except:
+        return "FAILED: wos_search"
+
+    return arts, uts
+
+    
 
 
 
