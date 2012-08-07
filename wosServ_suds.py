@@ -1,7 +1,7 @@
 #Author: Daniel Fehder
 # Last modified: 4/12/2012
 # Purpose: to provide a suds client to ISI Web of Science Lite web services
-import suds,logging, time
+import suds,logging, time, sqlite3
 from BeautifulSoup import BeautifulStoneSoup
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -17,11 +17,11 @@ def wos_auth(auth_url, proxy):
 
 
 
-def wos_search(search_text):
+def wos_search(search_text, endDate, a):
     url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
     serv_url = "http://search.isiknowledge.com/esti/wokmws/ws/WokSearchLite?wsdl"
     
-    a = wos_auth(url, 1)
+    #a = wos_auth(url, 1)
     time.sleep(1)
 
     #now try to ping the main service server
@@ -34,12 +34,14 @@ def wos_search(search_text):
         #d = dict(http='host:1080', https='host:1080')
         #search_client.set_options(proxy=d)
         #now create the query parameters object
+        #to get xml
+        search_client.set_options(retxml=bool(1))
     except:
         return "wos_search ERROR: CONNECTION ERROR"
 
     #now create the search request object
     try:
-        qp = search_client.factory.create('')
+        qp = search_client.factory.create('queryParameters')
         #now populate it with the data
         qp.userQuery = search_text
         qp.databaseID = "WOS"
@@ -57,6 +59,12 @@ def wos_search(search_text):
 
         qp.editions = [ed1, ed2]
 
+        ts = search_client.factory.create('timeSpan')
+        ts.begin = '1900-01-01'
+        ts.end = endDate
+        qp.timeSpan = ts
+        
+
     except:
         return "wosServ ERROR: Search request object error"
 
@@ -70,7 +78,7 @@ def wos_search(search_text):
 
     try:
         #this is the actual request to the server
-        res =  search_client.service.citingArticles(queryParameters= qp, retrieveParameters = rt)
+        res =  search_client.service.search(queryParameters= qp, retrieveParameters = rt)
         #bb =  search_client.last_sent()
         #print bb
         
