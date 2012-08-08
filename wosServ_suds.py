@@ -9,10 +9,20 @@ logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 #this establishes the auth
 def wos_auth(auth_url, proxy):
-    client = suds.client.Client(auth_url)
-    #d = dict(http='host:1080', https='host:1080')
-    #client.set_options(proxy=d)
-    session_id =  client.service.authenticate()
+    w = 0
+    while w < 1:
+        client = suds.client.Client(auth_url)
+        session_id =  client.service.authenticate()
+        session_id  = str(session_id)
+
+        if session_id.find("@") < 0:
+            w = 2
+        else:
+            pass
+
+        time.sleep(1)
+            
+
     return session_id
 
 
@@ -311,7 +321,7 @@ def shortExtract(xml):
     else:
         return "error"
             
-                
+             
 def artsDB(artlist, dbPath):
     """
     This function takes the return value of the shortExtract function
@@ -361,7 +371,7 @@ def queryID(souper):
 
     return ret
     
-   
+
 
 def searchIter(search_text, endDate):
     url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
@@ -406,6 +416,34 @@ def searchIter(search_text, endDate):
     return arts, uts, qid, recs, a
 
     
+def search(lsSearch, dbPath):
+    """
+    This function takes the list of search string and implements the searches
+    it then puts the search results into the dbs
+    """
+    f = 0
+    currentDate = time.strftime("%Y-%m-%d", time.gmtime())
+    print currentDate
+    
+    try:
+        for elem in lsSearch:
+            #first execute the search
+            print elem
 
+            arts1, utsLs, q, rec, a = searchIter(elem, currentDate)
+            print type(arts1)
+
+            if type(arts1) is list:
+                #now execute the insertion to the DB
+                f = artsDB(arts1, dbPath)
+            else:
+                f = "searchIter Error"
+
+
+        return f
+
+    except:
+        return f
+            
 
 

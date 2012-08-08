@@ -20,9 +20,7 @@ uts = wosServ_suds.utExtract(b)
 
 
 #now to test the above function
-conn_path = '/home/dcfehder/Dropbox/projects/cit-tools/WoS.db'
 
-outcome = wosServ_suds.artsDB(arts, conn_path)
 
 print outcome
 
@@ -35,14 +33,16 @@ se = "AU = Langer R* AND OG = MIT"
 se = "AU = Murray F* AND OG = MIT"
 
 #aa is the arts dict, bb is the uts, cc is qid, dd is recs, ee is a
-aa, bb, cc, dd, ee = wosServ_suds.searchIter(se, '2012-07-12')
+aa, bb, cc, dd, ee = wosServ_suds.searchIter(se, '2012-08-08')
 
-#now try the
-srt = 1101
-ff = wosServ_suds.wos_retrieve(cc, srt, ee)
-uts1 = wosServ_suds.utExtract(ff)
-arts1 = wosServ_suds.shortExtract(ff)
+conn_path = '/home/dcfehder/Dropbox/projects/cit-tools/WoS.db'
+f = wosServ_suds.artsDB(aa, conn_path)
 
-inter = range(101,dd,100)
+
+outcome = wosServ_suds.search(["AU = Langer R* AND OG = MIT"], conn_path)
+
+print outcome
+
+
 
 
