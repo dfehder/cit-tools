@@ -33,6 +33,4 @@ print outcome
 #this tests out the search option
 se = "AU = Murray F* AND OG = MIT"
 
-
-
-aa, bb = wosServ_suds.searchIter(se, '2012-07-12')
+aa, bb, cc, dd = wosServ_suds.searchIter(se, '2012-07-12')

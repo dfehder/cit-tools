@@ -339,12 +339,14 @@ def searchIter(search_text, endDate):
         arts = shortExtract(c)
         uts = utExtract(c)
         qid = queryID(soup)
+        print qid
         recs = recCount(soup)
+        print recs
         
     except:
         return "FAILED: wos_search"
 
-    return arts, uts
+    return arts, uts, qid, recs
 
     
 
