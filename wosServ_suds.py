@@ -153,6 +153,45 @@ def wos_UID(muid, edition, endDate, a):
 
     return res
 
+def wos_retrieve(quid, srtRec, a):
+    url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
+    serv_url = "http://search.isiknowledge.com/esti/wokmws/ws/WokSearchLite?wsdl"
+    
+    #a = wos_auth(url, 1)
+    time.sleep(1)
+
+    #now try to ping the main service server
+    try:
+        search_client = suds.client.Client(serv_url)
+        #set the required headers for the http
+        search_client.set_options(headers={'content-type':'text/xml; charset=utf-8'})
+        search_client.set_options(headers={'Cookie':'SID=%s'%a})
+
+        #this is to select the return value as a xml doc
+        search_client.set_options(retxml=bool(1))
+    except:
+        return "wos_search ERROR: CONNECTION ERROR"
+
+    
+    try:
+        #now create the return parameters object 
+        rt = search_client.factory.create('retrieveParameters')
+        rt.count = 100
+        rt.firstRecord = srtRec
+    except:
+        return "wosServ ERROR: response request object error"
+
+    try:
+        #this is the actual request to the server
+        res =  search_client.service.retrieve(queryId = str(quid), retrieveParameters = rt)
+        
+    except:
+        return "wosServ ERROR: request error"
+
+    return res
+
+
+
 
 def utExtract(xml):
     """ this function extracts all of the UTs from a returned record xml document from the WoS searchlit api"""
@@ -346,7 +385,7 @@ def searchIter(search_text, endDate):
     except:
         return "FAILED: wos_search"
 
-    return arts, uts, qid, recs
+    return arts, uts, qid, recs, a
 
     
 

@@ -31,6 +31,13 @@ print outcome
 
 
 #this tests out the search option
+se = "AU = Langer R* AND OG = MIT"
 se = "AU = Murray F* AND OG = MIT"
 
-aa, bb, cc, dd = wosServ_suds.searchIter(se, '2012-07-12')
+#aa is the arts dict, bb is the uts, cc is qid, dd is recs, ee is a
+aa, bb, cc, dd, ee = wosServ_suds.searchIter(se, '2012-07-12')
+
+#now try the
+srt = 1101
+ff = wosServ_suds.wos_retrieve(cc, srt, ee)
+uts1 = wosServ_suds.utExtract(ff)
