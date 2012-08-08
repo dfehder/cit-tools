@@ -383,7 +383,25 @@ def searchIter(search_text, endDate):
         print recs
         
     except:
-        return "FAILED: wos_search"
+        return "FAILED: wos_search1", 0, 0, 0, 0
+
+    #below is the logic for searches which return more than 100 results
+    try:
+        if recs < 100:
+            pass
+        else:
+            for i in range(101,recs,100):
+                nXML = wos_retrieve(qid, i, a)
+                narts = shortExtract(nXML)
+                nuts = utExtract(nXML)
+
+                #now combine the records
+
+                arts = arts + narts
+                uts = uts + nuts
+                
+    except:
+        return "FAILED: wos_search2", 0, 0, 0, 0
 
     return arts, uts, qid, recs, a
 

@@ -41,3 +41,8 @@ aa, bb, cc, dd, ee = wosServ_suds.searchIter(se, '2012-07-12')
 srt = 1101
 ff = wosServ_suds.wos_retrieve(cc, srt, ee)
 uts1 = wosServ_suds.utExtract(ff)
+arts1 = wosServ_suds.shortExtract(ff)
+
+inter = range(101,dd,100)
+
+
