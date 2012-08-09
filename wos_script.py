@@ -1,13 +1,20 @@
-import wosServ_suds, time
+import wosAPI, time
 from BeautifulSoup import BeautifulStoneSoup
-
-#searcher = "AU = Murray F AND AD = MIT"
-#b = wosServ_suds.wos_search(searcher)
+from xls_util import xlsList
 
 
+docpath = "/home/dcfehder/Dropbox/projects/cit-tools/search_template.xls"
+alist = xlsList(docpath, "wosSearch")
+#Since there is only one column of data, it will be in the second place in the list
+wosSearches = alist[1]
 
 
-print a
+#now run the searches
+conn_path = '/home/dcfehder/Dropbox/projects/cit-tools/WoS.db'
+
+outcome = wosAPI.search(wosSearches, conn_path)
+
+
 
 
 
@@ -33,23 +40,25 @@ se = "AU = Langer R* AND OG = MIT"
 se = "AU = Murray F* AND OG = MIT"
 
 #aa is the arts dict, bb is the uts, cc is qid, dd is recs, ee is a
-aa, bb, cc, dd, ee = wosServ_suds.searchIter(se, '2012-08-08')
+aa, bb, cc, dd, ee = wosAPI.searchIter(se, '2012-08-08')
 
 conn_path = '/home/dcfehder/Dropbox/projects/cit-tools/WoS.db'
-f = wosServ_suds.artsDB(aa, conn_path)
+f = wosAPI.artsDB(aa, conn_path)
 
 
-outcome = wosServ_suds.search(["AU = Langer R* AND OG = MIT"], conn_path)
+outcome = wosAPI.search(["AU = Langer R* AND OG = MIT"], conn_path)
 
 print outcome
 
 
-result = wosServ_suds.wosSearchDB("AU = Murray F* AND OG = MIT", bb, conn_path)
+result = wosAPI.wosSearchDB("AU = Murray F* AND OG = MIT", bb, conn_path)
 
 
-testy = ["AU = Langer R* AND OG = MIT AND PY = 2011", "AU = Murray F* AND OG = MIT AND PY = 2010"]
+testy = ["AU = Azoulay P* AND OG = MIT AND PY = 2011", "AU = Utterback J* AND OG = MIT AND PY = 1997"]
 
-outcome = wosServ_suds.search(testy, conn_path)
+conn_path = '/home/dcfehder/Dropbox/projects/cit-tools/WoS.db'
+
+outcome = wosAPI.search(testy, conn_path)
 
 
 
