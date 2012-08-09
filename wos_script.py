@@ -44,5 +44,12 @@ outcome = wosServ_suds.search(["AU = Langer R* AND OG = MIT"], conn_path)
 print outcome
 
 
+result = wosServ_suds.wosSearchDB("AU = Murray F* AND OG = MIT", bb, conn_path)
+
+
+testy = ["AU = Langer R* AND OG = MIT AND PY = 2011", "AF = Murray F* AND OG = MIT AND PY = 2010"]
+
+outcome = wosServ_suds.search(testy, conn_path)
+
 
 

@@ -353,7 +353,44 @@ def artsDB(artlist, dbPath):
 
     except:
         return 0
+
+def wosSearchDB(searcher, utList, dbPath):
+    """
+    This function inserts the resulting UTs from a search into an entry into
+    wosSearch table
+    """
+    #first check for the fact that it is a list
+    if type(utList) is list:
+        pass
+    else:
+        return 0
+    
+    try:
+        conn = sqlite3.connect(dbPath)
+        c = conn.cursor()
+
+        resStr = listString(utList, ";")
+        resDic = {'search':searcher, 'results':resStr}
         
+
+        sql_insert = 'insert into wosSearch (search, results) values (:search, :results)'
+
+        sql_check = 'SELECT * FROM wosSearch WHERE search = :search'
+
+        c.execute(sql_check, resDic)
+        allit = c.fetchall()
+        if len(allit) > 0:
+            pass
+        else:
+            c.execute(sql_insert, resDic)
+            conn.commit()
+
+        return 1
+
+    except:
+        return 0
+
+
 
 def recCount(souper):
     #takes an xml file parsed by soup and gets number of records
@@ -421,7 +458,7 @@ def search(lsSearch, dbPath):
     This function takes the list of search string and implements the searches
     it then puts the search results into the dbs
     """
-    f = 0
+    f = [0,0,0]
     currentDate = time.strftime("%Y-%m-%d", time.gmtime())
     print currentDate
     
@@ -432,12 +469,22 @@ def search(lsSearch, dbPath):
 
             arts1, utsLs, q, rec, a = searchIter(elem, currentDate)
             print type(arts1)
+            print type(utsLs)
 
             if type(arts1) is list:
                 #now execute the insertion to the DB
-                f = artsDB(arts1, dbPath)
+                f[0] = artsDB(arts1, dbPath)
+                
             else:
-                f = "searchIter Error"
+                f[0] = "searchIter Error"
+
+            if type(utsLs) is list:
+                #execute into wosSearch
+                f[1] = wosSearchDB(elem, utsLs, dbPath)
+
+            else:
+                f[1] = "searchIterError2"
+                
 
 
         return f
