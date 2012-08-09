@@ -481,6 +481,7 @@ def search(lsSearch, dbPath):
             if type(utsLs) is list:
                 #execute into wosSearch
                 f[1] = wosSearchDB(elem, utsLs, dbPath)
+                
 
             else:
                 f[1] = "searchIterError2"
