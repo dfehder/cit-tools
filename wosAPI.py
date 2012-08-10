@@ -600,7 +600,48 @@ def search(lsSearch, dbPath):
         return f
             
 
-#def utIter(ut, )
+def citedBy(lsSearch, dbPath):
+    """
+    This function takes the list of search string and implements the searches
+    it then puts the search results into the dbs
+    """
+    f = [0,0,0]
+    currentDate = time.strftime("%Y-%m-%d", time.gmtime())
+    print currentDate
+    
+    try:
+        for elem in lsSearch:
+            #first execute the search
+            print elem
+
+            arts1, utsLs, q, rec, a = utIter(elem, currentDate)
+            print type(arts1)
+            print type(utsLs)
+
+            if type(arts1) is list:
+                #now execute the insertion to the DB
+                f[0] = artsDB(arts1, dbPath)
+                
+            else:
+                f[0] = f[0] + -1
+
+            if type(utsLs) is list:
+                #execute into wosSearch
+                f[1] = citedByDB(elem, utsLs, dbPath)
+                
+
+            else:
+                f[1] = f[1] + -1
+
+
+            time.sleep(1)
+                
+
+
+        return f
+
+    except:
+        return f
 
 
 
