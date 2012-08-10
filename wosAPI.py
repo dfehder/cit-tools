@@ -49,7 +49,7 @@ def wos_search(search_text, endDate, a):
         qp.databaseID = "WOS"
         qp.queryLanguage = "en"
 
-        #now create the annoyting
+        #now create the 
         ed1 = search_client.factory.create('queryParameters.editions')
         ed2 = search_client.factory.create('queryParameters.editions')
         ed3 = search_client.factory.create('queryParameters.editions')
@@ -78,8 +78,6 @@ def wos_search(search_text, endDate, a):
 
         ed7.collection = 'WOS'
         ed7.edition = 'ISSHP'
-
-
 
         qp.editions = [ed1, ed2, ed3, ed6, ed7]
 
@@ -110,7 +108,7 @@ def wos_search(search_text, endDate, a):
     return res
 
 
-def wos_UID(muid, edition, endDate, a):
+def wos_UID(muid, endDate, a):
     url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
     serv_url = "http://search.isiknowledge.com/esti/wokmws/ws/WokSearchLite?wsdl"
     
@@ -135,19 +133,26 @@ def wos_UID(muid, edition, endDate, a):
         #now create the editions
         ed1 = search_client.factory.create('editionDesc')
         ed1.collection = 'WOS'
-        ed1.edition = edition
+        ed1.edition = 'SCI'
         
         ed2 = search_client.factory.create('editionDesc')
         ed2.collection = 'WOS'
         ed2.edition = 'SSCI'
 
-        ed2 = search_client.factory.create('editionDesc')
-        ed2.collection = 'WOS'
-        ed2.edition = 'SSCI'
+        ed3 = search_client.factory.create('editionDesc')
+        ed3.collection = 'WOS'
+        ed3.edition = 'AHCI'
 
+        ed4 = search_client.factory.create('editionDesc')
+        ed4.collection = 'WOS'
+        ed4.edition = 'ISTP'
+
+        ed5 = search_client.factory.create('editionDesc')
+        ed5.collection = 'WOS'
+        ed5.edition = 'ISSHP'
         
 
-        eds = [ed1, ed2]
+        eds = [ed1, ed2, ed3, ed4, ed5]
 
         ts = search_client.factory.create('timeSpan')
         ts.begin = '1900-01-01'
@@ -169,7 +174,7 @@ def wos_UID(muid, edition, endDate, a):
     try:
         #this is the actual request to the server
         woos = "WOS"
-        res =  search_client.service.citingArticles(databaseId = woos, uid = muid, editionDesc = ed1, timeSpan = ts, queryLanguage = 'en', retrieveParameters = rt)
+        res =  search_client.service.citingArticles(databaseId = woos, uid = muid, editionDesc = eds, timeSpan = ts, queryLanguage = 'en', retrieveParameters = rt)
         #bb =  search_client.last_sent()
         #print bb
         
@@ -461,11 +466,58 @@ def searchIter(search_text, endDate):
 
                 arts = arts + narts
                 uts = uts + nuts
+
+                time.sleep(1)
                 
     except:
         return "FAILED: wos_search2", 0, 0, 0, 0
 
     return arts, uts, qid, recs, a
+
+def utIter(uid, endDate):
+    url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
+    a = wos_auth(url, 1)
+
+    time.sleep(2)
+
+    #now we will get the xml from the server
+    try:
+        c = wos_UID(uid, endDate, a)
+        
+        #now create the data for the insertion into db
+        soup = BeautifulStoneSoup(c)
+        arts = shortExtract(c)
+        uts = utExtract(c)
+        qid = queryID(soup)
+        print qid
+        recs = recCount(soup)
+        print recs
+        
+    except:
+        return "FAILED: wos_uid1", 0, 0, 0, 0
+
+    #below is the logic for searches which return more than 100 results
+    try:
+        if recs < 100:
+            pass
+        else:
+            for i in range(101,recs,100):
+                nXML = wos_retrieve(qid, i, a)
+                narts = shortExtract(nXML)
+                nuts = utExtract(nXML)
+
+                #now combine the records
+
+                arts = arts + narts
+                uts = uts + nuts
+
+                time.sleep(1)
+                
+    except:
+        return "FAILED: wos_uid2", 0, 0, 0, 0
+
+    return arts, uts, qid, recs, a
+
 
     
 def search(lsSearch, dbPath):
@@ -500,6 +552,9 @@ def search(lsSearch, dbPath):
 
             else:
                 f[1] = "searchIterError2"
+
+
+            time.sleep(1)
                 
 
 
@@ -508,5 +563,8 @@ def search(lsSearch, dbPath):
     except:
         return f
             
+
+#def utIter(ut, )
+
 
 

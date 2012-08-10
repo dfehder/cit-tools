@@ -15,15 +15,24 @@ conn_path = '/home/dcfehder/Dropbox/projects/cit-tools/WoS.db'
 outcome = wosAPI.search(wosSearches, conn_path)
 
 
-
-
-
 muid = '000084170700023'
 muid2 = '000084170700024'
-b = wosServ_suds.wos_UID(muid2, 'SCI', '2012-07-12', a)
+muid3 = '000165188900010'
+url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
 
-arts = wosServ_suds.shortExtract(b)
-uts = wosServ_suds.utExtract(b)
+
+a = wosAPI.wos_auth(url, 1)
+aa, bb, cc, dd, ee = wosAPI.utIter(muid3, '2012-08-09')
+
+
+b = wosAPI.wos_UID(muid2, '2012-07-12', a)
+
+
+
+arts = wosAPI.shortExtract(b)
+uts = wosAPI.utExtract(b)
+mm = wosAPI.listString(uts, ";")
+
 
 
 #now to test the above function
@@ -31,34 +40,6 @@ uts = wosServ_suds.utExtract(b)
 
 print outcome
 
-
-#note that the WoS api bugs out whenever there are @ symbols in the SID, so you will need to fix that (like don't look up anything with that SID)
-
-
-#this tests out the search option
-se = "AU = Langer R* AND OG = MIT"
-se = "AU = Murray F* AND OG = MIT"
-
-#aa is the arts dict, bb is the uts, cc is qid, dd is recs, ee is a
-aa, bb, cc, dd, ee = wosAPI.searchIter(se, '2012-08-08')
-
-conn_path = '/home/dcfehder/Dropbox/projects/cit-tools/WoS.db'
-f = wosAPI.artsDB(aa, conn_path)
-
-
-outcome = wosAPI.search(["AU = Langer R* AND OG = MIT"], conn_path)
-
-print outcome
-
-
-result = wosAPI.wosSearchDB("AU = Murray F* AND OG = MIT", bb, conn_path)
-
-
-testy = ["AU = Azoulay P* AND OG = MIT AND PY = 2011", "AU = Utterback J* AND OG = MIT AND PY = 1997"]
-
-conn_path = '/home/dcfehder/Dropbox/projects/cit-tools/WoS.db'
-
-outcome = wosAPI.search(testy, conn_path)
 
 
 
