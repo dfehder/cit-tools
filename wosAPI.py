@@ -466,11 +466,11 @@ def queryID(souper):
     
 
 
-def searchIter(search_text, endDate):
-    url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
-    a = wos_auth(url, 1)
+def searchIter(search_text, endDate, a):
+    #url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
+    #a = wos_auth(url, 1)
 
-    time.sleep(2)
+    #time.sleep(2)
 
     #now we will get the xml from the server
     try:
@@ -564,13 +564,19 @@ def search(lsSearch, dbPath):
     f = [0,0,0]
     currentDate = time.strftime("%Y-%m-%d", time.gmtime())
     print currentDate
+
+    url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
+    a = wos_auth(url, 1)
+
+    time.sleep(2)
+
     
     try:
         for elem in lsSearch:
             #first execute the search
             print elem
 
-            arts1, utsLs, q, rec, a = searchIter(elem, currentDate)
+            arts1, utsLs, q, rec, a = searchIter(elem, currentDate, a)
             print type(arts1)
             print type(utsLs)
 
