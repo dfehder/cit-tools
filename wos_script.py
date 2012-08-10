@@ -12,17 +12,23 @@ wosSearches = alist[1]
 #now run the searches
 conn_path = '/home/dcfehder/Dropbox/projects/cit-tools/WoS.db'
 
+
+wosSearches = ["AU = Orlikowski W*", "AU = Duflo E*"]
 outcome = wosAPI.search(wosSearches, conn_path)
 
 
-muid = '000084170700023'
-muid2 = '000084170700024'
-muid3 = '000165188900010'
+muid = '000273700100011'
+muid2 = '000249607700010'
+muid3 = '000175510900004'
 url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
 
+mlist = [muid, muid2, muid3]
+
+result = wosAPI.citedBy(mlist, conn_path)
 
 a = wosAPI.wos_auth(url, 1)
 aa, bb, cc, dd, ee = wosAPI.utIter(muid3, '2012-08-09')
+result = wosAPI.citedByDB(muid3, bb, conn_path)
 
 
 b = wosAPI.wos_UID(muid2, '2012-07-12', a)
