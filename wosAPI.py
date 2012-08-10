@@ -410,6 +410,42 @@ def wosSearchDB(searcher, utList, dbPath):
     except:
         return 0
 
+def citedByDB(utfoc, utList, dbPath):
+    """
+    This function inserts the resulting UTs from a search into an entry into
+    wosSearch table
+    """
+    #first check for the fact that it is a list
+    if type(utList) is list:
+        pass
+    else:
+        return 0
+    
+    try:
+        conn = sqlite3.connect(dbPath)
+        c = conn.cursor()
+
+        resStr = listString(utList, ";")
+        resDic = {'UT':utfoc, 'forwCites':resStr}
+        
+
+        sql_insert = 'insert into citedBy (UT, forwCites) values (:UT, :forwCites)'
+
+        sql_check = 'SELECT * FROM citedBy WHERE UT = :UT'
+
+        c.execute(sql_check, resDic)
+        allit = c.fetchall()
+        if len(allit) > 0:
+            pass
+        else:
+            c.execute(sql_insert, resDic)
+            conn.commit()
+
+        return 1
+
+    except:
+        return 0
+
 
 
 def recCount(souper):
