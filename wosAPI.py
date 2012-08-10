@@ -510,11 +510,11 @@ def searchIter(search_text, endDate):
 
     return arts, uts, qid, recs, a
 
-def utIter(uid, endDate):
-    url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
-    a = wos_auth(url, 1)
+def utIter(uid, endDate, a):
+    #url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
+    #a = wos_auth(url, 1)
 
-    time.sleep(2)
+    #time.sleep(2)
 
     #now we will get the xml from the server
     try:
@@ -608,13 +608,20 @@ def citedBy(lsSearch, dbPath):
     f = [0,0,0]
     currentDate = time.strftime("%Y-%m-%d", time.gmtime())
     print currentDate
-    
+
+    url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
+    a = wos_auth(url, 1)
+
+    time.sleep(2)
+
+
+
     try:
         for elem in lsSearch:
             #first execute the search
             print elem
 
-            arts1, utsLs, q, rec, a = utIter(elem, currentDate)
+            arts1, utsLs, q, rec, a = utIter(elem, currentDate, a)
             print type(arts1)
             print type(utsLs)
 
