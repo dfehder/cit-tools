@@ -689,7 +689,7 @@ def utRegPop(dbPath):
         utDict = {"UT":ut, "wosSearch":currentDate}
         d = conn.cursor()
         d.execute(sql_check, utDict)
-        print ut
+        #print ut
         allit = d.fetchall()
         if len(allit) > 0:
             pass
@@ -698,6 +698,33 @@ def utRegPop(dbPath):
             conn.commit()
 
 
+def utRegCheck(dbPath, col):
+    """
+    This function checks all of the entries of the utRegister to see if the ut is in the table refered to in the columns name
+    """
+    conn = sqlite3.connect(dbPath)
+    c = conn.cursor()
+    currentDate = time.strftime("%Y-%m-%d", time.gmtime())
+    utDict = []
+    sql_check = "SELECT * FROM %s WHERE UT = :UT" % (col)
+    sql_up = "UPDATE utRegister set %s = :%s WHERE UT = :UT" % (col, col)
+    
+
+    for elem in c.execute('SELECT UT, %s from utRegister' % (col)):
+        utDict.append(elem)
+
+    for elem in utDict:
+        if elem[1] > 0:
+            pass
+        else:
+            utDict = {"UT":elem[0], "%s"%(col):currentDate}
+            c.execute(sql_check, utDict)
+            allit = c.fetchall()
+            if len(allit) > 0:
+                c.execute(sql_up, utDict)
+                conn.commit()
+            else:
+                pass
         
 
         
