@@ -657,4 +657,53 @@ def citedBy(lsSearch, dbPath):
         return f
 
 
+#####
+"""
+This section will provide the functions which ensures that the tables all have data they should, starting with the wosSearch table.
+"""
+#####
+
+def utRegPop(dbPath):
+    """
+    This function reads the wosSearch table and makes sure that every ut in all of the searches is contained in the utRegister table
+    """
+
+    conn = sqlite3.connect(dbPath)
+    c = conn.cursor()
+
+    currentDate = time.strftime("%Y-%m-%d", time.gmtime())
+    sql_check = "SELECT * FROM utRegister WHERE UT = :UT"
+    sql_insert = "INSERT INTO utRegister (UT, wosSearch) values (:UT, :wosSearch)"
+
+    utList = []
+    for elem in c.execute('SELECT results FROM wosSearch'):
+        utList1 = elem[0].split(";")
+
+        for ut in utList1:
+            utList.append(ut)
+            
+            
+            #utDict = {"UT":ut, "wosSearch":currentDate}
+            
+    for ut in utList:
+        utDict = {"UT":ut, "wosSearch":currentDate}
+        d = conn.cursor()
+        d.execute(sql_check, utDict)
+        print ut
+        allit = d.fetchall()
+        if len(allit) > 0:
+            pass
+        else:
+            d.execute(sql_insert, utDict)
+            conn.commit()
+
+
+        
+
+        
+        
+
+    
+
+        
 
