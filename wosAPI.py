@@ -647,7 +647,7 @@ def citedBy(lsSearch, dbPath):
                 f[1] = f[1] + -1
 
 
-            time.sleep(1)
+            time.sleep(8)
                 
 
 
@@ -729,7 +729,20 @@ def utRegCheck(dbPath, col):
 
         
         
+def utListGen(dbPath):
+    """
+    This function creates a list of ut's to search for
+    """
+    utList = []
 
+    conn = sqlite3.connect(dbPath)
+    c = conn.cursor()
+    sql = "SELECT UT FROM utRegister WHERE citedBy is NULL"
+    for elem in c.execute(sql):
+        utList.append(elem[0])
+
+    return utList
+        
     
 
         
