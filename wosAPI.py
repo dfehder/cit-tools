@@ -503,7 +503,7 @@ def searchIter(search_text, endDate, a):
                 arts = arts + narts
                 uts = uts + nuts
 
-                time.sleep(1)
+                time.sleep(5)
                 
     except:
         return "FAILED: wos_search2", 0, 0, 0, 0
@@ -555,8 +555,8 @@ def utIter(uid, endDate, a):
     return arts, uts, qid, recs, a
 
 
-    
-def search(lsSearch, dbPath):
+   
+def search(lsSearch, dbPath, delay):
     """
     This function takes the list of search string and implements the searches
     it then puts the search results into the dbs
@@ -570,33 +570,44 @@ def search(lsSearch, dbPath):
 
     time.sleep(2)
 
+    #clean up list to remove entries in db
+    def listClean(lsSearcher):
+        sql_check = "SELECT * FROM wosSearch WHERE search = :search"
+        conn = sqlite3.connect(dbPath)
+        c = conn.cursor()
+        retlist = []
+
+        for elem in lsSearcher:
+            check_dic = {"search":elem}
+            c.execute(sql_check, check_dic)
+            allit = c.fetchall()
+            if len(allit) > 0:
+                pass
+            else:
+                retlist.append(elem)
+
+        return retlist
+
+    lsSearch2 = listClean(lsSearch)   
     
     try:
-        for elem in lsSearch:
+        for elem in lsSearch2:
             #first execute the search
             print elem
+                        
 
             arts1, utsLs, q, rec, a = searchIter(elem, currentDate, a)
             print type(arts1)
             print type(utsLs)
 
-            if type(arts1) is list:
-                #now execute the insertion to the DB
-                f[0] = artsDB(arts1, dbPath)
-                
-            else:
-                f[0] = "searchIter Error"
-
-            if type(utsLs) is list:
-                #execute into wosSearch
-                f[1] = wosSearchDB(elem, utsLs, dbPath)
+            f[0] = artsDB(arts1, dbPath)
                 
 
-            else:
-                f[1] = "searchIterError2"
+            f[1] = wosSearchDB(elem, utsLs, dbPath)
+                
 
-
-            time.sleep(1)
+ 
+            time.sleep(delay)
                 
 
 
