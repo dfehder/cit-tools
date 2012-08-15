@@ -347,11 +347,6 @@ def artsDB(artlist, dbPath):
     This function takes the return value of the shortExtract function
     and puts it into the article_short table
     """
-    #first check for the fact that it is a list
-    if type(artlist) is list:
-        pass
-    else:
-        return 0
     
     try:
         conn = sqlite3.connect(dbPath)
@@ -467,46 +462,33 @@ def queryID(souper):
 
 
 def searchIter(search_text, endDate, a):
-    #url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
-    #a = wos_auth(url, 1)
+    
+    c = wos_search(search_text, endDate, a)
 
-    #time.sleep(2)
-
-    #now we will get the xml from the server
-    try:
-        c = wos_search(search_text, endDate, a)
+    #now create the data for the insertion into db
+    soup = BeautifulStoneSoup(c)
+    arts = shortExtract(c)
+    uts = utExtract(c)
+    qid = queryID(soup)
+    print qid
+    recs = recCount(soup)
+    print recs
         
-        #now create the data for the insertion into db
-        soup = BeautifulStoneSoup(c)
-        arts = shortExtract(c)
-        uts = utExtract(c)
-        qid = queryID(soup)
-        print qid
-        recs = recCount(soup)
-        print recs
-        
-    except:
-        return "FAILED: wos_search1", 0, 0, 0, 0
-
     #below is the logic for searches which return more than 100 results
-    try:
-        if recs < 100:
-            pass
-        else:
-            for i in range(101,recs,100):
-                nXML = wos_retrieve(qid, i, a)
-                narts = shortExtract(nXML)
-                nuts = utExtract(nXML)
+    if recs < 100:
+        pass
+    else:
+        for i in range(101,recs,100):
+            nXML = wos_retrieve(qid, i, a)
+            narts = shortExtract(nXML)
+            nuts = utExtract(nXML)
 
-                #now combine the records
+            #now combine the records
 
-                arts = arts + narts
-                uts = uts + nuts
+            arts = arts + narts
+            uts = uts + nuts
 
-                time.sleep(5)
-                
-    except:
-        return "FAILED: wos_search2", 0, 0, 0, 0
+            time.sleep(5)
 
     return arts, uts, qid, recs, a
 
