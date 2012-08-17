@@ -1,10 +1,45 @@
 #Author: Daniel Fehder
-# Last modified: 4/12/2012
+# Last modified: 8/15/2012
 # Purpose: to provide a suds client to ISI Web of Science Lite web services
 import suds,logging, time, sqlite3
 from BeautifulSoup import BeautifulStoneSoup
-logging.basicConfig(level=logging.INFO)
-logging.getLogger('suds.client').setLevel(logging.DEBUG)
+
+
+"""
+
+1. Error Logging Configuration
+
+""" 
+
+#logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('suds.client')
+logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.INFO)
+
+# create file handler which logs even debug messages
+fh = logging.FileHandler('/home/dcfehder/Dropbox/projects/cit-tools/wosAPI.log')
+fh.setLevel(logging.DEBUG)
+
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.ERROR)
+
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+
+# add the handlers to the logger
+logger.addHandler(fh)
+logger.addHandler(ch)
+
+
+"""
+
+2. SOAP functions for direct interaction with API
+
+"""
+
 
 
 #this establishes the auth
@@ -538,19 +573,22 @@ def utIter(uid, endDate, a):
 
 
    
-def search(lsSearch, dbPath, delay):
+def search(lsSearch, dbPath, delay, catchLim):
     """
     This function takes the list of search string and implements the searches
     it then puts the search results into the dbs
     """
     f = [0,0,0]
     currentDate = time.strftime("%Y-%m-%d", time.gmtime())
-    print currentDate
+    srtTime = time.time()
 
     url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
     a = wos_auth(url, 1)
 
     time.sleep(2)
+
+    #define var for tracking data downloaded
+    caught = 0
 
     #clean up list to remove entries in db
     def listClean(lsSearcher):
@@ -577,22 +615,25 @@ def search(lsSearch, dbPath, delay):
             #first execute the search
             print elem
                         
+            print caught
 
-            arts1, utsLs, q, rec, a = searchIter(elem, currentDate, a)
-            print type(arts1)
-            print type(utsLs)
-
-            f[0] = artsDB(arts1, dbPath)
+            if caught > catchLim:
+                pass
+            else:
+                #
+                arts1, utsLs, q, rec, a = searchIter(elem, currentDate, a)
+                logger.debug(str(type(arts1)))
+                caught = caught + len(utsLs)
                 
-
-            f[1] = wosSearchDB(elem, utsLs, dbPath)
+                f[0] = f[0] + artsDB(arts1, dbPath)
+                f[1] = f[1] + wosSearchDB(elem, utsLs, dbPath)
                 
 
  
-            time.sleep(delay)
+            time.sleep(delayCalc(srtTime, caught, delay))
                 
-
-
+        
+        logger.info(caught)
         return f
 
     except:
@@ -606,6 +647,7 @@ def citedBy(lsSearch, dbPath):
     """
     f = [0,0,0]
     currentDate = time.strftime("%Y-%m-%d", time.gmtime())
+    
     print currentDate
 
     url = "http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl"
@@ -736,6 +778,18 @@ def utListGen(dbPath):
 
     return utList
         
+
+def delayCalc(startTime, recordsCaught, throttle):
+    """
+    Function returns the number of seconds to sleep given number of records caught to maintain under threshold. throttle here is seconds/record. suggested throttle is .632 which is roughly 60s/95 records
+    """
+    diff = time.time() - startTime
+    wait = throttle*recordsCaught - diff
+
+    if wait > 0:
+        return wait
+    else:
+        return 0
     
 
         
