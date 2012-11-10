@@ -175,12 +175,48 @@ def biblio_ext(soupDoc):
     return return_dict
 
 
+def biblio_clean(biblioDict):
+    #first get rid of the WOS part of the ut
+    clean = biblioDict['UT']
+    clean = clean.replace('WOS:','')
+    biblioDict['UT'] = clean
+
+    return biblioDict
+
+
 
 """
 
 4. functions to put the data into the db
 
 """ 
+
+def artsDB(artlist, dbPath):
+    """
+    This function takes the return value of the shortExtract function
+    and puts it into the article_short table
+    """
+    
+    try:
+        conn = sqlite3.connect(dbPath)
+        c = conn.cursor()
+        sql_insert = 'insert into article (UT, AU, TI, PD, DI, LA, DT, DE, ID, AB, C1, RP, NR, TC, PU, WC, SC) values (:UT, :AU, :TI, :PD, :DI, :LA, :DT, :DE, :ID, :AB, :C1, :RP, :NR, :TC, :PU, :WC, :SC)'
+
+        sql_check = 'SELECT * FROM article WHERE UT = :UT'
+
+        for elem in artlist:
+            c.execute(sql_check, elem)
+            allit = c.fetchall()
+            if len(allit) > 0:
+                pass
+            else:
+                c.execute(sql_insert, elem)
+                conn.commit()
+
+        return 1
+
+    except:
+        return 0
 
 
 
