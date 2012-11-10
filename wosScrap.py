@@ -3,7 +3,10 @@ Author: D. Fehder
 Date: 8/13/2012
 """
 import mechanize, cookielib, re, logging
+import sqlite3
 from bs4 import BeautifulSoup
+#from pyvirtualdisplay import Display
+#from selenium import webdriver
 #BeautifulSoup(markup, html5lib)
 
 """
@@ -87,9 +90,9 @@ def getQID(url):
     return s
     
 
-def getUID(uid):
-    br = getBrowser()
-    sid = getSID(br)
+def getUID(uid, br, sid):
+    #br = getBrowser()
+    #sid = getSID(br)
     url1 = "http://apps.webofknowledge.com.libproxy.mit.edu/OneClickSearch.do?product=WOS&search_mode=OneClickSearch&colName=WOS&SID=%s&field=UT&value=%s"%(str(sid),str(uid))
     temp = br.open(url1)
 
@@ -107,6 +110,78 @@ def getUID(uid):
     soup = BeautifulSoup(temp2.read(), "html5lib") 
     
     return soup
+
+
+"""
+
+3. functions to extract data from the resulting soup
+
+""" 
+
+#start by establishing the control dictionary from the file maintained in the cit-tools folder on dropbox
+
+db_path = "/home/dcfehder/Dropbox/projects/cit-tools/scrap.sqlite"
+db = sqlite3.connect(db_path)
+res = db.execute("select * from scrap_headers")
+control_dict = {}
+for item in res:
+    control_dict[item[0]] = item[1]
+
+#now the functions
+
+def title_extract(soupDoc):
+    cc = soupDoc.find('td', 'FullRecTitle')
+    text = cc.text
+    text = text.strip("\n")
+    return text
+
+def everything_else(soupDoc):
+    final_dict = {}
+    bb = soupDoc.find_all('td', "fr_data_row")
+    for elem in bb:
+        a = elem.stripped_strings
+        for string in a:
+            if control_dict.has_key(string):
+                key = control_dict[string]
+                if key == 'AU':
+                    auList = ''
+                    a1 = 1
+                    while a1 > 0:
+                        try:
+                            elem = a.next()
+                            elem2 = elem.strip("(")
+                            elem2 = elem2.strip(")")
+                            elem2 = elem2.strip(";")
+                            if auList.find(elem2) > 0:
+                                pass
+                            else:
+                                auList = auList + ";" + elem2
+                                #print auList
+                        except:
+                            a1 = -1
+                    auList = auList.lstrip(";")
+                    auList = auList.replace(";;", ";")
+                    final_dict[key] = auList
+                else:
+                    final_dict[key] = a.next()
+            else:
+                pass
+
+    return final_dict
+
+def biblio_ext(soupDoc):
+    return_dict = everything_else(soupDoc)
+    return_dict['TI'] = title_extract(soupDoc)
+    return return_dict
+
+
+
+"""
+
+4. functions to put the data into the db
+
+""" 
+
 
 
 
